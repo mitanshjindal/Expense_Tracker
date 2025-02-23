@@ -1,34 +1,57 @@
-# 🚀 Vaultix - The Ultimate Expense Management Solution
+# Vaultix - Advanced Expense Management Platform
 
-![Vaultix Banner](src/assets/images/115773440.jpeg)
-![GitHub](https://img.shields.io/github/license/your-repo/vaultix)
-![Node Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
-![React Version](https://img.shields.io/badge/react-18-blue)
+![Vaultix Banner](src/assets/images/a1.jpg)
 
-Vaultix is not just another expense tracker - it's a comprehensive financial management platform that combines cutting-edge technology with user-friendly design to revolutionize how you manage your finances.
+Vaultix is a comprehensive financial management solution designed to revolutionize how individuals and businesses track, analyze, and optimize their expenses. With cutting-edge features and robust security, Vaultix provides a complete ecosystem for financial management.
 
-## 🌟 Key Features
+## Table of Contents
 
-### 💼 Core Functionality
-- **Expense Tracking**: Log and categorize expenses with ease
-- **Income Management**: Track all income sources in one place
-- **Real-time Analytics**: Visualize your financial data with interactive charts
-- **Multi-device Sync**: Access your data from anywhere, anytime
+- [Project Overview](#project-overview)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [System Architecture](#system-architecture)
+- [Database Schema](#database-schema)
+- [API Documentation](#api-documentation)
+- [Installation Guide](#installation-guide)
+- [Usage](#usage)
+- [Development](#development)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contact](#contact)
 
-### 🔐 Security & Authentication
+## Project Overview
+
+Vaultix is more than just an expense tracker - it's a complete financial management platform that combines robust expense tracking with advanced features like AI-powered recommendations, real-time monitoring, and secure authentication. Designed for both individuals and businesses, Vaultix offers:
+
+- Comprehensive expense and income tracking
+- Advanced financial analytics
+- Secure authentication and role-based access
+- AI-powered expense recommendations
+- Integrated payment processing
+- Real-time notifications and alerts
+
+## Key Features
+
+### Core Functionality
+- **Expense Tracking**: Log and categorize expenses with detailed metadata
+- **Income Management**: Track multiple income sources with categorization
+- **Financial Analytics**: Interactive dashboards with real-time data visualization
+- **Multi-user Support**: Manage multiple users with role-based access
+
+### Security & Authentication
 - **JWT Authentication**: Secure token-based authentication
 - **OTP Verification**: Two-factor authentication via email/SMS
 - **Password Hashing**: Bcrypt encryption for user credentials
 - **Role-based Access**: Admin and user roles with different permissions
 
-### 🚀 Advanced Features
-- **AI-Powered Insights**: Get smart expense recommendations
+### Advanced Features
+- **AI-Powered Insights**: Machine learning-based expense recommendations
 - **Expense Approval Workflow**: Create and manage approval processes
 - **Payment Integration**: Seamless Razorpay integration for payments
 - **Email Notifications**: Real-time alerts and reminders
 - **Admin Dashboard**: Comprehensive monitoring and management tools
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
 | Technology | Purpose |
@@ -49,45 +72,69 @@ Vaultix is not just another expense tracker - it's a comprehensive financial man
 | JWT | Authentication |
 | Nodemailer | Email Notifications |
 | Razorpay | Payment Processing |
+| Multer | File Uploads |
 
-## 🚀 Getting Started
+### Infrastructure
+| Technology | Purpose |
+|------------|---------|
+| Docker | Containerization |
+| GitHub Actions | CI/CD |
+| AWS EC2 | Hosting |
+| Nginx | Reverse Proxy |
 
-### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB (v5.0 or higher)
-- NPM/Yarn/PNPM
+## System Architecture
 
-### Installation
-1. Clone the repository
-```bash
-git clone https://github.com/your-repo/vaultix.git
-cd vaultix
-```
-2. Install dependencies
-```bash
-npm install
-cd backend
-npm install
-```
-3. Configure environment variables
-```bash
-# Create .env files in both root and backend directories
-# Add required configurations
-```
+Vaultix follows a microservices architecture with the following components:
 
-### Running the Application
-1. Start the backend server
-```bash
-cd backend
-npm run dev
-```
-2. Start the frontend development server
-```bash
-cd ..
-npm run dev
-```
+1. **Authentication Service**: Handles user authentication and authorization
+2. **Expense Service**: Manages expense tracking and categorization
+3. **Income Service**: Handles income tracking and management
+4. **Analytics Service**: Provides financial insights and visualizations
+5. **Notification Service**: Manages email and SMS notifications
+6. **Payment Service**: Handles payment processing and integration
 
-## 📚 API Documentation
+## Database Schema
+
+### User
+- `_id`: ObjectId
+- `name`: String
+- `email`: String
+- `password`: String (hashed)
+- `isVerified`: Boolean
+- `role`: String (enum: ['admin', 'user'])
+
+### Expense
+- `_id`: ObjectId
+- `userId`: ObjectId (reference to User)
+- `category`: String
+- `amount`: Number
+- `date`: Date
+- `description`: String
+- `status`: String (enum: ['pending', 'approved', 'rejected'])
+
+### Income
+- `_id`: ObjectId
+- `userId`: ObjectId (reference to User)
+- `source`: String
+- `amount`: Number
+- `date`: Date
+- `description`: String
+
+### Notification
+- `_id`: ObjectId
+- `userId`: ObjectId (reference to User)
+- `type`: String (enum: ['email', 'sms'])
+- `content`: String
+- `status`: String (enum: ['pending', 'sent', 'failed'])
+
+### Payment
+- `_id`: ObjectId
+- `userId`: ObjectId (reference to User)
+- `amount`: Number
+- `status`: String (enum: ['pending', 'completed', 'failed'])
+- `transactionId`: String
+
+## API Documentation
 
 ### Authentication
 | Endpoint | Method | Description | Example Request |
@@ -132,69 +179,82 @@ npm run dev
 }
 ``` |
 
-## 📸 Screenshots
+### Incomes
+| Endpoint | Method | Description | Example Response |
+|----------|--------|-------------|------------------|
+| `/api/incomes` | GET | Get all incomes | ```json
+[
+  {
+    "id": "1",
+    "source": "Salary",
+    "amount": 2500.00,
+    "date": "2023-10-01"
+  }
+]
+``` |
+| `/api/incomes` | POST | Create new income | ```json
+{
+  "source": "Freelance",
+  "amount": 500.00,
+    "date": "2023-10-02"
+}
+``` |
 
-![Dashboard](src/assets/images/a1.avif)
-*Interactive Dashboard with Real-time Analytics*
+## Installation Guide
 
-![Expense Form](src/assets/images/a1.jpg)
-*Intuitive Expense Entry Form*
+1. Clone the repository:
+   ```
+   git clone https://github.com/Yashmittal4/Vaultix
+   ```
+2. Navigate to the project directory:
+   ```
+   cd vaultix
+   ```
+3. Install dependencies:
+   ```
+   npm install
+   cd backend
+   npm install
+   ```
+4. Set up environment variables:
+   ```
+   cp .env.example .env
+   ```
+   Then, fill in the necessary environment variables in the `.env` file.
 
-## 🤝 Contributing
+5. Start the development server:
+   ```
+   npm run dev
+   ```
 
-We welcome contributions! Please follow these steps:
+## Usage
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Visit `http://localhost:5173` in your browser to access the application.
 
-### Pull Request Template
-```markdown
-## Description
-Explain the changes you've made
+## Development
 
-## Related Issues
-Fixes # (issue)
+We follow Git Flow for our development process. Please create a feature branch and submit a pull request for any new features or bug fixes.
 
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
+## Testing
 
-## Checklist
-- [ ] My code follows the style guidelines
-- [ ] I have performed a self-review
-- [ ] I have added tests
-- [ ] Documentation has been updated
+Run unit tests:
+```
+npm run test
 ```
 
-## 📜 License
+Run E2E tests:
+```
+npm run test:e2e
+```
 
-MIT License - See [LICENSE](LICENSE) for details
+## Deployment
 
-## 📞 Support
+We use Docker for containerization and AWS EC2 for hosting. The main branch is automatically deployed to our production environment.
 
-For support, please open an issue or contact us at support@vaultix.com
+## Contact
 
-## 🚀 Roadmap
+For any queries, please reach out to us at yashmittal4949@gmail.com
 
-- [x] Core Expense Tracking
-- [x] Authentication System
-- [x] Admin Dashboard
-- [ ] Mobile App Development
-- [ ] Multi-language Support
-- [ ] Budget Planning Tools
+---
 
-## ❓ FAQ
-
-**Q: How secure is Vaultix?**
-A: Vaultix uses industry-standard security practices including JWT authentication, bcrypt password hashing, and OTP verification.
-
-**Q: Can I use Vaultix for business purposes?**
-A: Yes, Vaultix is designed to handle both personal and business finances with features like expense approval workflows and role-based access control.
-
-**Q: Is there a mobile app?**
-A: Currently, Vaultix is web-based, but we're working on mobile apps for iOS and Android.
+Made with ❤️ by the Vaultix Team

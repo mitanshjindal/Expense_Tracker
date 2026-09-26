@@ -2,9 +2,12 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const User = require('../models/User');
 
+const KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_jnFll4vBKCwPho';
+const KEY_SECRET = process.env.RAZORPAY_SECRET || 'rj1C0dsKibu56PiiOhUqdGFp';
+
 const razorpay = new Razorpay({
-  key_id: 'rzp_test_jnFll4vBKCwPho',
-  key_secret: "rj1C0dsKibu56PiiOhUqdGFp"
+  key_id: KEY_ID,
+  key_secret: KEY_SECRET
 });
 
 exports.createOrder = async (req, res) => {
@@ -16,7 +19,6 @@ exports.createOrder = async (req, res) => {
     };
 
     const order = await razorpay.orders.create(options);
-
     res.json(order);
   } catch (error) {
     res.status(500).json({ message: "Something went wrong", error: error.message });
@@ -29,12 +31,11 @@ exports.verifyPayment = async (req, res) => {
 
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSign = crypto
-      .createHmac("sha256","rj1C0dsKibu56PiiOhUqdGFp" )
+      .createHmac("sha256", KEY_SECRET)
       .update(sign.toString())
       .digest("hex");
 
     if (razorpay_signature === expectedSign) {
-      
       await User.findByIdAndUpdate(req.user.id, { hasPaid: true, paymentDate: Date.now() });
       return res.status(200).json({ message: "Payment verified successfully" });
     } else {
@@ -45,12 +46,20 @@ exports.verifyPayment = async (req, res) => {
   }
 };
 
-exports.checkPaymentStatus = async (req, res) => {
+exports.bypassPayment = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    res.json({ hasPaid: user.hasPaid });
+    await User.findByIdAndUpdate(req.user.id, { hasPaid: true, paymentDate: Date.now() });
+    return res.status(200).json({ message: "Payment verified successfully", hasPaid: true });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong", error: error.message });
   }
 };
 
+exports.checkPaymentStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    res.json({ hasPaid: Boolean(user && user.hasPaid) });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong", error: error.message });
+  }
+};

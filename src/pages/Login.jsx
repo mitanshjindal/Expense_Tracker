@@ -25,6 +25,7 @@ const Login = () => {
           const loginResponse = await axios.post('http://localhost:5000/api/auth/completeLogin', { email });
           localStorage.setItem('token', loginResponse.data.token);
           localStorage.setItem('username', loginResponse.data.user.username);
+          localStorage.setItem('email', loginResponse.data.user.email || email);
           localStorage.setItem('isAdmin', loginResponse.data.user.isAdmin);
           toast.success('Admin logged in successfully!');
           navigate('/admin');
@@ -77,6 +78,7 @@ const Login = () => {
         const loginResponse = await axios.post('http://localhost:5000/api/auth/completeLogin', { email });
         localStorage.setItem('token', loginResponse.data.token);
         localStorage.setItem('username', loginResponse.data.user.username);
+        localStorage.setItem('email', loginResponse.data.user.email || email);
         localStorage.setItem('isAdmin', loginResponse.data.user.isAdmin);
         toast.success('Logged in successfully!');
         navigate('/');

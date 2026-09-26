@@ -38,7 +38,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
       className="bg-gray-900 text-white w-64 min-h-screen p-4"
     >
       <div className="mb-8">
-        <h2 className="text-2xl font-bold">Finance Tracker</h2>
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">FinTrack</h2>
         {username && <p className="mt-2 text-gray-400">Hi, {username}</p>}
       </div>
       <nav>

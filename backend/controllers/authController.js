@@ -10,13 +10,18 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const isAdmin = email === 'yashmittal4949@gmail.com';
+    const isAdmin = email === 'mitanshjindal001@gmail.com';
 
     const user = await User.create({ username, email, password, isAdmin });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'fallback_secret', {
+      expiresIn: '30d',
+    });
 
     res.status(201).json({
       success: true,
       message: 'User created successfully',
+      token,
       user: {
         id: user._id,
         username: user.username,

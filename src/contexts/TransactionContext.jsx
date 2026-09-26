@@ -18,7 +18,7 @@ export const TransactionProvider = ({ children }) => {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [transactions]);
 
   useEffect(() => {
     calculateTotals();

@@ -13,11 +13,19 @@ exports.getUsers = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json({ message: 'User deleted successfully' });
+
+    // Cascade delete: Remove the user and all their expenses and incomes
+    await Promise.all([
+      User.findByIdAndDelete(req.params.id),
+      Expense.deleteMany({ user: req.params.id }),
+      Income.deleteMany({ user: req.params.id })
+    ]);
+
+    res.json({ message: 'User and all associated data deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -68,15 +76,23 @@ exports.getUserStats = async (req, res) => {
 
 exports.getOverallStats = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
+    const existingUsers = await User.find({}).select('_id');
+    const existingUserIds = existingUsers.map(u => u._id);
+    const totalUsers = existingUserIds.length;
+
+    // Only aggregate data belonging to existing users
     const totalExpenses = await Expense.aggregate([
+      { $match: { user: { $in: existingUserIds } } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
+
     const totalIncome = await Income.aggregate([
+      { $match: { user: { $in: existingUserIds } } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
 
     const monthlyIncome = await Income.aggregate([
+      { $match: { user: { $in: existingUserIds } } },
       {
         $group: {
           _id: { $month: '$date' },
@@ -87,6 +103,7 @@ exports.getOverallStats = async (req, res) => {
     ]);
 
     const monthlyExpense = await Expense.aggregate([
+      { $match: { user: { $in: existingUserIds } } },
       {
         $group: {
           _id: { $month: '$date' },

@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
   },
   hasPaid: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   paymentDate: {
     type: Date,

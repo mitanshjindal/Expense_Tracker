@@ -73,20 +73,20 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 p-4">
-      <div className="flex w-full max-w-4xl bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className="flex w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
         <div className="hidden md:block w-1/2 bg-cover bg-center" style={{backgroundImage: `url(${a1})`}}></div>
-        <div className="w-full md:w-1/2 p-8">
+        <div className="w-full md:w-1/2 p-6 sm:p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-bold text-white mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6">
               {showOtpInput ? 'Two-Factor Verification' : 'Login'}
             </h2>
 
             {!showOtpInput ? (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
                   <input
@@ -95,7 +95,7 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-blue-500 focus:bg-gray-600 focus:ring-0 text-white px-3 py-2"
+                    className="mt-1 block w-full rounded-xl bg-gray-700 border border-gray-600 focus:border-blue-500 focus:outline-none text-white px-3.5 py-2.5 text-sm"
                   />
                 </div>
                 <div>
@@ -106,16 +106,16 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-blue-500 focus:bg-gray-600 focus:ring-0 text-white px-3 py-2"
+                    className="mt-1 block w-full rounded-xl bg-gray-700 border border-gray-600 focus:border-blue-500 focus:outline-none text-white px-3.5 py-2.5 text-sm"
                   />
                 </div>
                 <div>
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={isLoading}
                     type="submit"
-                    className="w-full py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
+                    className="w-full py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
                   >
                     {isLoading ? 'Verifying & Sending OTP...' : 'Login'}
                   </motion.button>
@@ -123,8 +123,8 @@ const Login = () => {
               </form>
             ) : (
               <form onSubmit={handleOtpSubmit} className="space-y-6">
-                <p className="text-sm text-gray-300">
-                  Enter the 4-digit code sent to your email: <span className="font-semibold text-blue-400">{email}</span>
+                <p className="text-xs sm:text-sm text-gray-300">
+                  Enter the 6-digit code sent to your email: <span className="font-semibold text-blue-400 break-all">{email}</span>
                 </p>
 
                 <div>
@@ -134,21 +134,21 @@ const Login = () => {
                     id="otp"
                     value={otp}
                     maxLength={6}
-                    placeholder="Enter 4-digit OTP"
+                    placeholder="Enter 6-digit OTP"
                     onChange={(e) => setOtp(e.target.value)}
                     required
                     autoFocus
-                    className="mt-1 block w-full text-center tracking-widest text-lg font-mono rounded-md bg-gray-700 border-transparent focus:border-blue-500 focus:bg-gray-600 focus:ring-0 text-white px-3 py-2"
+                    className="mt-1 block w-full text-center tracking-widest text-lg font-mono rounded-xl bg-gray-700 border border-gray-600 focus:border-blue-500 focus:outline-none text-white px-3.5 py-2.5"
                   />
                 </div>
 
                 <div className="flex flex-col gap-3">
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={isLoading}
                     type="submit"
-                    className="w-full py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
+                    className="w-full py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
                   >
                     {isLoading ? 'Verifying OTP...' : 'Verify OTP & Login'}
                   </motion.button>

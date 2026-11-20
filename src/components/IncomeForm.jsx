@@ -15,6 +15,8 @@ const IncomeForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!formData.name || !formData.amount) return;
+
     addTransaction({
       ...formData,
       type: 'income',
@@ -36,84 +38,104 @@ const IncomeForm = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-gray-800 rounded-xl p-6 shadow-lg"
+      transition={{ duration: 0.3 }}
+      className="bg-gray-800/90 rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-700/60"
     >
-      <h2 className="text-2xl font-semibold mb-4 text-white">Add Income</h2>
+      <h2 className="text-lg sm:text-xl font-bold mb-4 text-white flex items-center">
+        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2.5" /> Add Income
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div>
+            <label htmlFor="income-name" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+              Income Source
+            </label>
+            <input
+              type="text"
+              id="income-name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g. Salary, Client Gig"
+              required
+              className="w-full px-3.5 py-2.5 rounded-xl bg-gray-700 border border-gray-600 focus:border-emerald-500 focus:outline-none text-white text-sm"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="income-amount" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+              Amount
+            </label>
+            <input
+              type="number"
+              id="income-amount"
+              name="amount"
+              value={formData.amount}
+              onChange={handleChange}
+              placeholder="0.00"
+              required
+              min="0.01"
+              step="0.01"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-gray-700 border border-gray-600 focus:border-emerald-500 focus:outline-none text-white text-sm"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="income-category" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+              Category
+            </label>
+            <select
+              id="income-category"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-gray-700 border border-gray-600 focus:border-emerald-500 focus:outline-none text-white text-sm cursor-pointer"
+            >
+              {['Salary', 'Freelance', 'Investment', 'Gift', 'Other'].map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="income-date" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+              Date
+            </label>
+            <input
+              type="date"
+              id="income-date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-gray-700 border border-gray-600 focus:border-emerald-500 focus:outline-none text-white text-sm"
+            />
+          </div>
+        </div>
+
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-300">Income Name</label>
+          <label htmlFor="income-referral" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+            Referral / Note (Optional)
+          </label>
           <input
             type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-green-500 focus:bg-gray-600 focus:ring-0 text-white"
-          />
-        </div>
-        <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-300">Amount</label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleChange}
-            required
-            min="0"
-            step="0.01"
-            className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-green-500 focus:bg-gray-600 focus:ring-0 text-white"
-          />
-        </div>
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-300">Category</label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-green-500 focus:bg-gray-600 focus:ring-0 text-white"
-          >
-            {['Salary', 'Freelance', 'Investment', 'Gift', 'Other'].map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-300">Date</label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-green-500 focus:bg-gray-600 focus:ring-0 text-white"
-          />
-        </div>
-        <div>
-          <label htmlFor="referral" className="block text-sm font-medium text-gray-300">Referral</label>
-          <input
-            type="text"
-            id="referral"
+            id="income-referral"
             name="referral"
             value={formData.referral}
             onChange={handleChange}
-            placeholder="Optional"
-            className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-green-500 focus:bg-gray-600 focus:ring-0 text-white"
+            placeholder="Invoice #, Client or Note"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-gray-700 border border-gray-600 focus:border-emerald-500 focus:outline-none text-white text-sm"
           />
         </div>
+
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           type="submit"
-          className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center"
         >
-          <Plus className="inline-block w-5 h-5 mr-2" />
-          Add Income
+          <Plus className="w-4 h-4 mr-2" /> Record Income
         </motion.button>
       </form>
     </motion.div>
@@ -121,4 +143,3 @@ const IncomeForm = () => {
 };
 
 export default IncomeForm;
-

@@ -14,26 +14,13 @@ export const TransactionProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
-  const [currency, setCurrency] = useState(() => localStorage.getItem('preferredCurrency') || 'USD');
+  const [currency] = useState('INR');
+  const currencySymbol = '₹';
   const navigate = useNavigate();
-
-  const currencySymbols = {
-    USD: '$',
-    EUR: '€',
-    GBP: '£',
-    INR: '₹',
-    JPY: '¥'
-  };
-
-  const changeCurrency = (code) => {
-    setCurrency(code);
-    localStorage.setItem('preferredCurrency', code);
-  };
 
   const formatCurrency = (val) => {
     const num = parseFloat(val || 0);
-    const symbol = currencySymbols[currency] || '$';
-    return `${symbol}${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   useEffect(() => {
@@ -218,10 +205,9 @@ export const TransactionProvider = ({ children }) => {
       totalIncome,
       totalExpenses,
       fetchTransactions,
-      currency,
-      changeCurrency,
-      formatCurrency,
-      currencySymbol: currencySymbols[currency] || '$'
+      currency: 'INR',
+      currencySymbol: '₹',
+      formatCurrency
     }}>
       {children}
     </TransactionContext.Provider>

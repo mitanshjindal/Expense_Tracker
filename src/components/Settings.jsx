@@ -5,7 +5,7 @@ import { Shield, CheckCircle2, Download, Trash2, Globe, Palette } from 'lucide-r
 import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
-  const { transactions, currency, changeCurrency, clearAllTransactions } = useTransactions();
+  const { transactions, clearAllTransactions } = useTransactions();
   const [username, setUsername] = useState('User');
   const [email, setEmail] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
@@ -85,22 +85,14 @@ const Settings = () => {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
-            <label htmlFor="currency" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
               Active Currency
             </label>
-            <select
-              id="currency"
-              value={currency}
-              onChange={(e) => changeCurrency(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-gray-700 border border-gray-600 focus:border-blue-500 focus:outline-none text-white text-xs sm:text-sm cursor-pointer"
-            >
-              <option value="USD">USD ($) - US Dollar</option>
-              <option value="INR">INR (₹) - Indian Rupee</option>
-              <option value="EUR">EUR (€) - Euro</option>
-              <option value="GBP">GBP (£) - British Pound</option>
-              <option value="JPY">JPY (¥) - Japanese Yen</option>
-            </select>
-            <p className="text-[11px] text-gray-400 mt-1">Updates figures and charts dynamically across FinTrack.</p>
+            <div className="w-full px-3.5 py-2.5 rounded-xl bg-gray-700/80 border border-gray-600 text-white text-xs sm:text-sm font-medium flex items-center justify-between">
+              <span>Indian Rupee (₹ INR)</span>
+              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-semibold">Standard</span>
+            </div>
+            <p className="text-[11px] text-gray-400 mt-1">All calculations, transactions and graphs are in INR (₹).</p>
           </div>
 
           <div>

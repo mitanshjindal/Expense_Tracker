@@ -151,7 +151,7 @@ const Admin = () => {
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
               </div>
               <p className="text-2xl sm:text-3xl font-black text-emerald-400 truncate">
-                ${totalInc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ₹{totalInc.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
 
@@ -161,7 +161,7 @@ const Admin = () => {
                 <DollarSign className="w-4 h-4 text-rose-400" />
               </div>
               <p className="text-2xl sm:text-3xl font-black text-rose-400 truncate">
-                ${totalExp.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ₹{totalExp.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
 
@@ -171,7 +171,7 @@ const Admin = () => {
                 <Shield className="w-4 h-4 text-yellow-400" />
               </div>
               <p className={`text-2xl sm:text-3xl font-black truncate ${netBal >= 0 ? 'text-yellow-400' : 'text-rose-400'}`}>
-                ${netBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ₹{netBal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           </div>
@@ -280,11 +280,11 @@ const Admin = () => {
                         <tr key={user._id} className="hover:bg-gray-800/30 transition-colors">
                           <td className="py-3 px-3 sm:px-4 font-semibold text-white">{user.username}</td>
                           <td className="py-3 px-3 sm:px-4 text-gray-400">{user.email}</td>
-                          <td className="py-3 px-3 sm:px-4 text-emerald-400">${(user.totalIncome || 0).toFixed(2)}</td>
-                          <td className="py-3 px-3 sm:px-4 text-rose-400">${(user.totalExpenses || 0).toFixed(2)}</td>
+                          <td className="py-3 px-3 sm:px-4 text-emerald-400">₹{(user.totalIncome || 0).toFixed(2)}</td>
+                          <td className="py-3 px-3 sm:px-4 text-rose-400">₹{(user.totalExpenses || 0).toFixed(2)}</td>
                           <td className="py-3 px-3 sm:px-4">
                             <span className={`font-semibold ${bal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                              ${bal.toFixed(2)}
+                              ₹{bal.toFixed(2)}
                             </span>
                           </td>
                           <td className="py-3 px-3 sm:px-4 text-right space-x-1.5 sm:space-x-2 whitespace-nowrap">
@@ -346,16 +346,16 @@ const Admin = () => {
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-gray-800">
                     <span className="text-gray-400">Total Income:</span>
-                    <span className="text-emerald-400 font-semibold">${(selectedUser.totalIncome || 0).toFixed(2)}</span>
+                    <span className="text-emerald-400 font-semibold">₹{(selectedUser.totalIncome || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-gray-800">
                     <span className="text-gray-400">Total Expenses:</span>
-                    <span className="text-rose-400 font-semibold">${(selectedUser.totalExpenses || 0).toFixed(2)}</span>
+                    <span className="text-rose-400 font-semibold">₹{(selectedUser.totalExpenses || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between py-1.5">
                     <span className="text-gray-400">Current Balance:</span>
                     <span className={`font-bold ${(selectedUser.balance || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      ${(selectedUser.balance || 0).toFixed(2)}
+                      ₹{(selectedUser.balance || 0).toFixed(2)}
                     </span>
                   </div>
                 </div>

@@ -132,7 +132,7 @@ const TransactionList = ({ type }) => {
             const isEditing = editingTransaction && editingTransaction._id === transaction._id;
             const formattedAmount = formatCurrency 
               ? formatCurrency(transaction.amount) 
-              : `$${parseFloat(transaction.amount || 0).toFixed(2)}`;
+              : `₹${parseFloat(transaction.amount || 0).toFixed(2)}`;
 
             return (
               <motion.li

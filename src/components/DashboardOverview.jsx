@@ -106,7 +106,7 @@ const DashboardOverview = ({ totalIncome = 0, totalExpenses = 0, transactions = 
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(val) => [formatCurrency ? formatCurrency(val) : `$${Number(val).toFixed(2)}`, 'Amount']}
+                    formatter={(val) => [formatCurrency ? formatCurrency(val) : `₹${Number(val).toFixed(2)}`, 'Amount']}
                     contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
                   />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
@@ -135,7 +135,7 @@ const DashboardOverview = ({ totalIncome = 0, totalExpenses = 0, transactions = 
                   <XAxis dataKey="month" stroke="#9CA3AF" tick={{ fontSize: 10 }} />
                   <YAxis stroke="#9CA3AF" tick={{ fontSize: 10 }} />
                   <Tooltip 
-                    formatter={(val) => [formatCurrency ? formatCurrency(val) : `$${Number(val).toFixed(2)}`]}
+                    formatter={(val) => [formatCurrency ? formatCurrency(val) : `₹${Number(val).toFixed(2)}`]}
                     contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
                   />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
@@ -171,7 +171,7 @@ const DashboardOverview = ({ totalIncome = 0, totalExpenses = 0, transactions = 
                   transaction.type === 'expense' ? 'text-rose-400' : 'text-emerald-400'
                 }`}>
                   {transaction.type === 'expense' ? '-' : '+'}
-                  {formatCurrency ? formatCurrency(transaction.amount) : `$${parseFloat(transaction.amount || 0).toFixed(2)}`}
+                  {formatCurrency ? formatCurrency(transaction.amount) : `₹${parseFloat(transaction.amount || 0).toFixed(2)}`}
                 </p>
               </li>
             ))}
@@ -182,7 +182,7 @@ const DashboardOverview = ({ totalIncome = 0, totalExpenses = 0, transactions = 
   );
 };
 
-const StatCard = ({ title, value, icon, color, symbol = '$' }) => {
+const StatCard = ({ title, value, icon, color, symbol = '₹' }) => {
   const isPositive = value >= 0;
   const absValue = Math.abs(value);
 

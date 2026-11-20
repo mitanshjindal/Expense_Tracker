@@ -1,21 +1,36 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { useTransactions } from '../contexts/TransactionContext';
+
+const getTodayString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const IncomeForm = () => {
   const { addTransaction } = useTransactions();
+  const today = getTodayString();
   const [formData, setFormData] = useState({
     name: '',
     amount: '',
     category: 'Salary',
-    date: new Date().toISOString().split('T')[0],
+    date: today,
     referral: '',
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.amount) return;
+
+    if (formData.date > today) {
+      toast.error('Income date cannot be in the future');
+      return;
+    }
 
     addTransaction({
       ...formData,
@@ -26,7 +41,7 @@ const IncomeForm = () => {
       name: '',
       amount: '',
       category: 'Salary',
-      date: new Date().toISOString().split('T')[0],
+      date: today,
       referral: '',
     });
   };
@@ -107,6 +122,7 @@ const IncomeForm = () => {
               type="date"
               id="income-date"
               name="date"
+              max={today}
               value={formData.date}
               onChange={handleChange}
               className="w-full px-3.5 py-2.5 rounded-xl bg-gray-700 border border-gray-600 focus:border-emerald-500 focus:outline-none text-white text-sm"

@@ -55,6 +55,7 @@ const Login = () => {
       // Step 3: Verify the code from user's email
       const verifyResponse = await api.post('/auth/verifyOTP', { email, otp });
       if (verifyResponse.data.success) {
+        localStorage.clear();
         localStorage.setItem('token', verifyResponse.data.token);
         localStorage.setItem('username', verifyResponse.data.user.username);
         localStorage.setItem('email', verifyResponse.data.user.email || email);

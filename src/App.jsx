@@ -22,18 +22,39 @@ const PrivateRoute = ({ children, adminRequired = false }) => {
   return children;
 };
 
+const DashboardWrapper = () => {
+  const token = localStorage.getItem('token') || 'guest';
+  return (
+    <TransactionProvider key={token}>
+      <UserDashboard />
+    </TransactionProvider>
+  );
+};
+
 function App() {
   return (
     <Router>
-      <TransactionProvider>
-        <Toaster position="top-right" />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/" element={<PrivateRoute><UserDashboard /></PrivateRoute>} />
-          <Route path="/admin" element={<PrivateRoute adminRequired={true}><Admin /></PrivateRoute>} />
-        </Routes>
-      </TransactionProvider>
+      <Toaster position="top-right" />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <DashboardWrapper />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute adminRequired={true}>
+              <Admin />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
     </Router>
   );
 }

@@ -23,6 +23,12 @@ export const TransactionProvider = ({ children }) => {
     return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  const resetTransactions = () => {
+    setTransactions([]);
+    setTotalIncome(0);
+    setTotalExpenses(0);
+  };
+
   useEffect(() => {
     fetchTransactions();
   }, []);
@@ -35,6 +41,7 @@ export const TransactionProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
+        resetTransactions();
         navigate('/login');
         return;
       }
@@ -55,9 +62,10 @@ export const TransactionProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching transactions:', error);
       if (error.response && error.response.status === 401) {
-        toast.error('Session expired. Please login again.');
-        localStorage.removeItem('token');
+        resetTransactions();
+        localStorage.clear();
         navigate('/login');
+        toast.error('Session expired. Please login again.');
       } else {
         toast.error('Failed to fetch transactions. Please try again.');
       }
@@ -205,6 +213,7 @@ export const TransactionProvider = ({ children }) => {
       totalIncome,
       totalExpenses,
       fetchTransactions,
+      resetTransactions,
       currency: 'INR',
       currencySymbol: '₹',
       formatCurrency

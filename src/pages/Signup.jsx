@@ -15,6 +15,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const response = await api.post('/auth/signup', { username, email, password });
+      localStorage.clear();
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('username', response.data.user.username);
       localStorage.setItem('email', response.data.user.email);

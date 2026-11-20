@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, DollarSign, CreditCard, User, LogOut, Shield, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTransactions } from '../contexts/TransactionContext';
 
 const Sidebar = ({ setActiveView, activeView }) => {
   const [username, setUsername] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const { resetTransactions } = useTransactions();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,10 +19,8 @@ const Sidebar = ({ setActiveView, activeView }) => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('isAdmin');
-    localStorage.removeItem('email');
+    if (resetTransactions) resetTransactions();
+    localStorage.clear();
     navigate('/login');
   };
 

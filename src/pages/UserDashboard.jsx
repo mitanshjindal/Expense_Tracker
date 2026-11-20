@@ -11,13 +11,15 @@ import { useTransactions } from '../contexts/TransactionContext';
 
 const UserDashboard = () => {
   const [activeView, setActiveView] = useState('dashboard');
-  const { transactions, totalIncome, totalExpenses } = useTransactions();
+  const { transactions, totalIncome, totalExpenses, fetchTransactions } = useTransactions();
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
+    } else {
+      fetchTransactions();
     }
   }, [navigate]);
 

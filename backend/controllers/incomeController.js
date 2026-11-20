@@ -3,6 +3,17 @@ const Income = require('../models/Income');
 exports.addIncome = async (req, res) => {
   try {
     const { name, amount, category, date, referral } = req.body;
+
+    if (date) {
+      const inputDate = new Date(date);
+      const now = new Date();
+      const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      const maxAllowed = new Date(endOfToday.getTime() + 14 * 60 * 60 * 1000);
+      if (inputDate > maxAllowed) {
+        return res.status(400).json({ message: 'Income date cannot be in the future' });
+      }
+    }
+
     const income = await Income.create({
       user: req.user.id,
       name,
@@ -30,6 +41,17 @@ exports.updateIncome = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, amount, category, date, referral } = req.body;
+
+    if (date) {
+      const inputDate = new Date(date);
+      const now = new Date();
+      const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      const maxAllowed = new Date(endOfToday.getTime() + 14 * 60 * 60 * 1000);
+      if (inputDate > maxAllowed) {
+        return res.status(400).json({ message: 'Income date cannot be in the future' });
+      }
+    }
+
     const income = await Income.findOneAndUpdate(
       { _id: id, user: req.user.id },
       { name, amount, category, date, referral },

@@ -1,16 +1,26 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, ShoppingCart, Trash2, Edit, Download, Search, Filter } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { useTransactions } from '../contexts/TransactionContext';
 
 const EXPENSE_CATEGORIES = ['Food', 'Transportation', 'Entertainment', 'Utilities', 'Shopping', 'Health', 'Other'];
 const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Investment', 'Gift', 'Other'];
+
+const getTodayString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const TransactionList = ({ type }) => {
   const { deleteTransaction, editTransaction, searchTransactions, filterTransactions, formatCurrency } = useTransactions();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const today = getTodayString();
 
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
@@ -21,13 +31,22 @@ const TransactionList = ({ type }) => {
   const handleEdit = (transaction) => {
     setEditingTransaction({
       ...transaction,
-      amount: transaction.amount || ''
+      amount: transaction.amount || '',
+      date: transaction.date ? new Date(transaction.date).toISOString().split('T')[0] : today
     });
   };
 
   const handleUpdate = (e) => {
     e.preventDefault();
     if (!editingTransaction) return;
+
+    if (editingTransaction.date) {
+      const editDate = String(editingTransaction.date).split('T')[0];
+      if (editDate > today) {
+        toast.error('Date cannot be in the future');
+        return;
+      }
+    }
 
     editTransaction(editingTransaction._id, {
       ...editingTransaction,
@@ -149,7 +168,7 @@ const TransactionList = ({ type }) => {
               >
                 {isEditing ? (
                   <form onSubmit={handleUpdate} className="w-full space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                       <input
                         type="text"
                         name="name"
@@ -180,6 +199,14 @@ const TransactionList = ({ type }) => {
                           <option key={cat} value={cat}>{cat}</option>
                         ))}
                       </select>
+                      <input
+                        type="date"
+                        name="date"
+                        max={today}
+                        value={editingTransaction.date ? String(editingTransaction.date).split('T')[0] : today}
+                        onChange={handleChange}
+                        className="px-3 py-2 bg-gray-700 text-white rounded-lg text-xs sm:text-sm border border-gray-600 focus:border-blue-500 focus:outline-none"
+                      />
                     </div>
                     <div className="flex space-x-2 justify-end pt-1">
                       <button

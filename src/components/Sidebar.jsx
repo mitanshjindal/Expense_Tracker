@@ -41,9 +41,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
       {/* ================= MOBILE TOP HEADER BAR ================= */}
       <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 z-40 px-4 flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white text-sm shadow-md">
-            FT
-          </div>
+          <img src="/favicon.png" alt="FinTrack Logo" className="w-8 h-8 rounded-full object-cover shadow-md" />
           <span className="text-xl font-black bg-gradient-to-r from-blue-400 via-indigo-300 to-white bg-clip-text text-transparent">
             FinTrack
           </span>
@@ -88,9 +86,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
             >
               <div className="flex items-center justify-between pb-6 border-b border-gray-800 mb-6">
                 <div className="flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white text-sm">
-                    FT
-                  </div>
+                  <img src="/favicon.png" alt="FinTrack Logo" className="w-8 h-8 rounded-full object-cover shadow-md" />
                   <div>
                     <h3 className="font-bold text-white text-base">FinTrack</h3>
                     {username && <p className="text-xs text-gray-400">Hi, {username}</p>}
@@ -187,9 +183,7 @@ const Sidebar = ({ setActiveView, activeView }) => {
       <aside className="hidden md:flex flex-col w-64 min-h-screen bg-gray-900 text-white p-5 border-r border-gray-800 flex-shrink-0 sticky top-0 h-screen">
         <div className="mb-8">
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white text-base shadow-md">
-              FT
-            </div>
+            <img src="/favicon.png" alt="FinTrack Logo" className="w-8 h-8 rounded-full object-cover shadow-md" />
             <h2 className="text-2xl font-black bg-gradient-to-r from-blue-400 via-indigo-300 to-white bg-clip-text text-transparent">
               FinTrack
             </h2>

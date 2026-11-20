@@ -19,17 +19,13 @@ const Login = () => {
     try {
       const response = await api.post('/auth/login', { email, password });
       if (response.data.success) {
-        if (response.data.user.isAdmin) {
-          const loginResponse = await api.post('/auth/completeLogin', { email });
-          localStorage.setItem('token', loginResponse.data.token);
-          localStorage.setItem('username', loginResponse.data.user.username);
-          localStorage.setItem('email', loginResponse.data.user.email || email);
-          localStorage.setItem('isAdmin', loginResponse.data.user.isAdmin);
-          toast.success('Admin logged in successfully!');
-          navigate('/admin');
-        } else {
-          await requestOtp();
-        }
+        const loginResponse = await api.post('/auth/completeLogin', { email });
+        localStorage.setItem('token', loginResponse.data.token);
+        localStorage.setItem('username', loginResponse.data.user.username);
+        localStorage.setItem('email', loginResponse.data.user.email || email);
+        localStorage.setItem('isAdmin', loginResponse.data.user.isAdmin);
+        toast.success(loginResponse.data.user.isAdmin ? 'Admin logged in successfully!' : 'Logged in successfully!');
+        navigate(loginResponse.data.user.isAdmin ? '/admin' : '/');
       } else {
         toast.error(response.data.message || 'Login failed');
       }
@@ -41,6 +37,11 @@ const Login = () => {
   };
 
   const requestOtp = async () => {
+    if (!email) {
+      toast.error('Please enter your email address first');
+      return;
+    }
+    setIsLoading(true);
     try {
       const otpRes = await api.post('/auth/reqOTP', { email });
       setShowOtpInput(true);
@@ -48,6 +49,8 @@ const Login = () => {
       toast.success(otpRes.data?.message || 'OTP sent to your email inbox!');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to send OTP to your email');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,7 +66,7 @@ const Login = () => {
         localStorage.setItem('email', loginResponse.data.user.email || email);
         localStorage.setItem('isAdmin', loginResponse.data.user.isAdmin);
         toast.success('Logged in successfully!');
-        navigate('/');
+        navigate(loginResponse.data.user.isAdmin ? '/admin' : '/');
       } else {
         toast.error('Invalid OTP');
       }
@@ -112,7 +115,7 @@ const Login = () => {
                     className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-blue-500 focus:bg-gray-600 focus:ring-0 text-white px-3 py-2"
                   />
                 </div>
-                <div>
+                <div className="space-y-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -122,6 +125,15 @@ const Login = () => {
                   >
                     {isLoading ? 'Verifying...' : 'Login'}
                   </motion.button>
+
+                  <button
+                    type="button"
+                    onClick={requestOtp}
+                    disabled={isLoading}
+                    className="w-full text-center text-xs text-blue-400 hover:text-blue-300 underline block"
+                  >
+                    Or verify & log in via Email OTP
+                  </button>
                 </div>
               </form>
             ) : (

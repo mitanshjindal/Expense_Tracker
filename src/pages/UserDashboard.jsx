@@ -11,7 +11,7 @@ import TransactionList from '../components/TransactionList';
 import DashboardOverview from '../components/DashboardOverview';
 import { useTransactions } from '../contexts/TransactionContext';
 import PaymentModal from '../components/PaymentModal';
-import axios from 'axios';
+import api from '../config/api';
 
 const UserDashboard = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -31,7 +31,7 @@ const UserDashboard = () => {
 
   const checkPaymentStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/payment/check-payment-status', {
+      const response = await api.get('/payment/check-payment-status', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setHasPaid(response.data.hasPaid);

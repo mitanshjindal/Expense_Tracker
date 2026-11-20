@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
-import axios from 'axios';
+import api from '../config/api';
 
 const Admin = () => {
   const [userStats, setUserStats] = useState([]);
@@ -19,10 +19,10 @@ const Admin = () => {
   const fetchData = async () => {
     try {
       const [userStatsResponse, overallStatsResponse] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/user-stats', {
+        api.get('/admin/user-stats', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         }),
-        axios.get('http://localhost:5000/api/admin/overall-stats', {
+        api.get('/admin/overall-stats', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
       ]);
@@ -35,7 +35,7 @@ const Admin = () => {
 
   const deleteUser = async (userId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
+      await api.delete(`/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setUserStats(userStats.filter(user => user._id !== userId));

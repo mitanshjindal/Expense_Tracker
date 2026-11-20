@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../config/api';
 import a1 from "../assets/images/a1.jpg";
 
 const Login = () => {
@@ -19,10 +19,10 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const response = await api.post('/auth/login', { email, password });
       if (response.data.success) {
         if (response.data.user.isAdmin) {
-          const loginResponse = await axios.post('http://localhost:5000/api/auth/completeLogin', { email });
+          const loginResponse = await api.post('/auth/completeLogin', { email });
           localStorage.setItem('token', loginResponse.data.token);
           localStorage.setItem('username', loginResponse.data.user.username);
           localStorage.setItem('email', loginResponse.data.user.email || email);
@@ -44,7 +44,7 @@ const Login = () => {
 
   const requestOtp = async () => {
     try {
-      const otpRes = await axios.post('http://localhost:5000/api/auth/reqOTP', { email });
+      const otpRes = await api.post('/auth/reqOTP', { email });
       setShowOtpInput(true);
       const returnedOtp = otpRes.data.otp;
       const isEmailSent = Boolean(otpRes.data.emailSent);
@@ -73,9 +73,9 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const verifyResponse = await axios.post('http://localhost:5000/api/auth/verifyOTP', { email, otp });
+      const verifyResponse = await api.post('/auth/verifyOTP', { email, otp });
       if (verifyResponse.data.message === 'OTP verified' || verifyResponse.data.success) {
-        const loginResponse = await axios.post('http://localhost:5000/api/auth/completeLogin', { email });
+        const loginResponse = await api.post('/auth/completeLogin', { email });
         localStorage.setItem('token', loginResponse.data.token);
         localStorage.setItem('username', loginResponse.data.user.username);
         localStorage.setItem('email', loginResponse.data.user.email || email);

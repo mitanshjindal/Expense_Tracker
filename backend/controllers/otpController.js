@@ -2,8 +2,6 @@ const nodemailer = require('nodemailer');
 const randomstring = require('randomstring');
 const User = require('../models/User');
 
-// In-memory OTP cache: { [email]: { otp: string, createdAt: number } }
-const otpCache = {};
 const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
 
 function generateOTP() {
@@ -87,10 +85,10 @@ exports.reqOTP = async (req, res) => {
     }
 
     const otp = generateOTP();
-    otpCache[email] = {
-      otp,
-      createdAt: Date.now()
-    };
+    await User.updateOne(
+      { _id: user._id },
+      { otp, otpExpires: new Date(Date.now() + OTP_EXPIRY_MS) }
+    );
 
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`🔑 [OTP REQUESTED] User: ${email}`);
@@ -110,7 +108,7 @@ exports.reqOTP = async (req, res) => {
       // Email failed or not configured: provide dev OTP so user is not stuck
       return res.json({
         success: true,
-        message: 'Email delivery unavailable (configure EMAIL_USER & EMAIL_PASS in backend/.env).',
+        message: 'Email delivery unavailable (configure EMAIL_USER & EMAIL_PASS).',
         emailSent: false,
         otp
       });
@@ -121,29 +119,34 @@ exports.reqOTP = async (req, res) => {
   }
 };
 
-exports.verifyOTP = (req, res) => {
+exports.verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
     return res.status(400).json({ success: false, message: 'Email and OTP are required' });
   }
 
-  const cachedData = otpCache[email];
+  try {
+    const user = await User.findOne({ email });
 
-  if (!cachedData) {
-    return res.status(400).json({ success: false, message: 'OTP not found or expired. Please request a new OTP.' });
-  }
+    if (!user || !user.otp || !user.otpExpires) {
+      return res.status(400).json({ success: false, message: 'OTP not found or expired. Please request a new OTP.' });
+    }
 
-  const now = Date.now();
-  if (now - cachedData.createdAt > OTP_EXPIRY_MS) {
-    delete otpCache[email];
-    return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
-  }
+    const now = new Date();
+    if (now > new Date(user.otpExpires)) {
+      await User.updateOne({ _id: user._id }, { $unset: { otp: 1, otpExpires: 1 } });
+      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
+    }
 
-  if (cachedData.otp === String(otp).trim()) {
-    delete otpCache[email];
-    return res.json({ success: true, message: 'OTP verified' });
-  } else {
-    return res.status(400).json({ success: false, message: 'Invalid OTP. Please check your email and try again.' });
+    if (user.otp === String(otp).trim()) {
+      await User.updateOne({ _id: user._id }, { $unset: { otp: 1, otpExpires: 1 } });
+      return res.json({ success: true, message: 'OTP verified' });
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid OTP. Please check your email and try again.' });
+    }
+  } catch (error) {
+    console.error('verifyOTP server error:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };

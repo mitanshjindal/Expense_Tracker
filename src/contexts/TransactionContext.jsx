@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../config/api';
 import { useNavigate } from 'react-router-dom';
 
 const TransactionContext = createContext();
@@ -18,7 +18,7 @@ export const TransactionProvider = ({ children }) => {
 
   useEffect(() => {
     fetchTransactions();
-  }, [transactions]);
+  }, []);
 
   useEffect(() => {
     calculateTotals();
@@ -33,10 +33,10 @@ export const TransactionProvider = ({ children }) => {
       }
 
       const [expensesResponse, incomesResponse] = await Promise.all([
-        axios.get('http://localhost:5000/api/expenses', {
+        api.get('/expenses', {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get('http://localhost:5000/api/incomes', {
+        api.get('/incomes', {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -82,8 +82,8 @@ export const TransactionProvider = ({ children }) => {
         return;
       }
 
-      const response = await axios.post(
-        `http://localhost:5000/api/${transaction.type}s`,
+      const response = await api.post(
+        `/${transaction.type}s`,
         transaction,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -104,7 +104,7 @@ export const TransactionProvider = ({ children }) => {
         return;
       }
 
-      await axios.delete(`http://localhost:5000/api/${type}s/${id}`, {
+      await api.delete(`/${type}s/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -129,8 +129,8 @@ export const TransactionProvider = ({ children }) => {
         return;
       }
 
-      const response = await axios.put(
-        `http://localhost:5000/api/${updatedTransaction.type}s/${id}`,
+      const response = await api.put(
+        `/${updatedTransaction.type}s/${id}`,
         updatedTransaction,
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../config/api';
 import a1 from "../assets/images/a1.jpg"
 
 const Signup = () => {
@@ -14,7 +14,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', { username, email, password });
+      const response = await api.post('/auth/signup', { username, email, password });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('username', response.data.user.username);
       localStorage.setItem('email', response.data.user.email);

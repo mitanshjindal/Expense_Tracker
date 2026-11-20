@@ -31,6 +31,12 @@ const UserSchema = new mongoose.Schema({
   paymentDate: {
     type: Date,
   },
+  otp: {
+    type: String,
+  },
+  otpExpires: {
+    type: Date,
+  },
 }, { timestamps: true });
 
 UserSchema.pre('save', async function(next) {

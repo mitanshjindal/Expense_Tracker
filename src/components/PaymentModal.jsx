@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { CheckCircle2, ShieldCheck, Zap, CreditCard, X } from 'lucide-react';
@@ -27,7 +27,7 @@ const PaymentModal = ({ onClose, onPaymentSuccess }) => {
   const handleQuickUnlock = async () => {
     setBypassLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/payment/bypass-payment', {}, {
+      const response = await api.post('/payment/bypass-payment', {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
@@ -54,7 +54,7 @@ const PaymentModal = ({ onClose, onPaymentSuccess }) => {
 
     setLoading(true);
     try {
-      const orderResponse = await axios.post('http://localhost:5000/api/payment/create-order', {}, {
+      const orderResponse = await api.post('/payment/create-order', {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
@@ -69,7 +69,7 @@ const PaymentModal = ({ onClose, onPaymentSuccess }) => {
         send_sms_hash: false,
         handler: async function (response) {
           try {
-            const verifyResponse = await axios.post('http://localhost:5000/api/payment/verify-payment', {
+            const verifyResponse = await api.post('/payment/verify-payment', {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature

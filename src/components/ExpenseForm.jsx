@@ -78,7 +78,7 @@ const ExpenseForm = () => {
             onChange={handleChange}
             className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-blue-500 focus:bg-gray-600 focus:ring-0 text-white"
           >
-            {['Food', 'Transportation', 'Entertainment', 'Utilities', 'Other'].map(category => (
+            {['Food', 'Transportation', 'Entertainment', 'Utilities', 'Shopping', 'Health', 'Other'].map(category => (
               <option key={category} value={category}>{category}</option>
             ))}
           </select>

@@ -14,7 +14,27 @@ export const TransactionProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
+  const [currency, setCurrency] = useState(() => localStorage.getItem('preferredCurrency') || 'USD');
   const navigate = useNavigate();
+
+  const currencySymbols = {
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    INR: '₹',
+    JPY: '¥'
+  };
+
+  const changeCurrency = (code) => {
+    setCurrency(code);
+    localStorage.setItem('preferredCurrency', code);
+  };
+
+  const formatCurrency = (val) => {
+    const num = parseFloat(val || 0);
+    const symbol = currencySymbols[currency] || '$';
+    return `${symbol}${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   useEffect(() => {
     fetchTransactions();
@@ -41,8 +61,8 @@ export const TransactionProvider = ({ children }) => {
         })
       ]);
 
-      const expenses = expensesResponse.data.map(expense => ({ ...expense, type: 'expense' }));
-      const incomes = incomesResponse.data.map(income => ({ ...income, type: 'income' }));
+      const expenses = (expensesResponse.data || []).map(expense => ({ ...expense, type: 'expense' }));
+      const incomes = (incomesResponse.data || []).map(income => ({ ...income, type: 'income' }));
 
       setTransactions([...expenses, ...incomes].sort((a, b) => new Date(b.date) - new Date(a.date)));
     } catch (error) {
@@ -60,10 +80,10 @@ export const TransactionProvider = ({ children }) => {
   const calculateTotals = () => {
     const income = transactions
       .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
     const expenses = transactions
       .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
     
     setTotalIncome(income);
     setTotalExpenses(expenses);
@@ -88,8 +108,9 @@ export const TransactionProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setTransactions(prevTransactions => [response.data, ...prevTransactions]);
-      toast.success(`${transaction.type} added successfully!`);
+      const newTransaction = { ...response.data, type: transaction.type };
+      setTransactions(prevTransactions => [newTransaction, ...prevTransactions]);
+      toast.success(`${transaction.type === 'expense' ? 'Expense' : 'Income'} added successfully!`);
     } catch (error) {
       console.error('Error adding transaction:', error);
       toast.error(error.response?.data?.message || `Failed to add ${transaction.type}`);
@@ -135,8 +156,9 @@ export const TransactionProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      const updated = { ...response.data, type: updatedTransaction.type };
       setTransactions(prevTransactions =>
-        prevTransactions.map(t => t._id === id ? { ...response.data, type: updatedTransaction.type } : t)
+        prevTransactions.map(t => t._id === id ? updated : t)
       );
       toast.success("Transaction updated successfully!");
     } catch (error) {
@@ -145,11 +167,35 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
+  const clearAllTransactions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const expenseDeletes = transactions
+        .filter(t => t.type === 'expense')
+        .map(t => api.delete(`/expenses/${t._id}`, { headers: { Authorization: `Bearer ${token}` } }));
+      const incomeDeletes = transactions
+        .filter(t => t.type === 'income')
+        .map(t => api.delete(`/incomes/${t._id}`, { headers: { Authorization: `Bearer ${token}` } }));
+
+      await Promise.all([...expenseDeletes, ...incomeDeletes]);
+      setTransactions([]);
+      toast.success('All transactions cleared successfully!');
+    } catch (error) {
+      console.error('Error clearing transactions:', error);
+      toast.error('Failed to clear some transactions');
+    }
+  };
+
   const searchTransactions = (query, type) => {
+    if (!query) return transactions.filter(t => t.type === type);
+    const q = query.toLowerCase();
     return transactions.filter(t => 
       t.type === type && 
-      (t.name.toLowerCase().includes(query.toLowerCase()) || 
-       t.category.toLowerCase().includes(query.toLowerCase()))
+      ((t.name && t.name.toLowerCase().includes(q)) || 
+       (t.category && t.category.toLowerCase().includes(q)) ||
+       (t.referral && t.referral.toLowerCase().includes(q)))
     );
   };
 
@@ -166,11 +212,16 @@ export const TransactionProvider = ({ children }) => {
       addTransaction, 
       deleteTransaction, 
       editTransaction,
+      clearAllTransactions,
       searchTransactions,
       filterTransactions,
       totalIncome,
       totalExpenses,
-      fetchTransactions 
+      fetchTransactions,
+      currency,
+      changeCurrency,
+      formatCurrency,
+      currencySymbol: currencySymbols[currency] || '$'
     }}>
       {children}
     </TransactionContext.Provider>

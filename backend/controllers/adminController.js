@@ -47,9 +47,14 @@ exports.getUserStats = async (req, res) => {
           username: 1,
           email: 1,
           createdAt: 1,
-          totalExpenses: { $sum: '$expenses.amount' },
-          totalIncome: { $sum: '$incomes.amount' },
-          balance: { $subtract: [{ $sum: '$incomes.amount' }, { $sum: '$expenses.amount' }] }
+          totalExpenses: { $ifNull: [{ $sum: '$expenses.amount' }, 0] },
+          totalIncome: { $ifNull: [{ $sum: '$incomes.amount' }, 0] },
+          balance: {
+            $subtract: [
+              { $ifNull: [{ $sum: '$incomes.amount' }, 0] },
+              { $ifNull: [{ $sum: '$expenses.amount' }, 0] }
+            ]
+          }
         }
       },
       { $sort: { balance: -1 } }
@@ -71,7 +76,7 @@ exports.getOverallStats = async (req, res) => {
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
 
-    const monthlyData = await Income.aggregate([
+    const monthlyIncome = await Income.aggregate([
       {
         $group: {
           _id: { $month: '$date' },
@@ -81,7 +86,7 @@ exports.getOverallStats = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    const expenseData = await Expense.aggregate([
+    const monthlyExpense = await Expense.aggregate([
       {
         $group: {
           _id: { $month: '$date' },
@@ -91,12 +96,20 @@ exports.getOverallStats = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    const monthlyStats = monthlyData.map(income => {
-      const expense = expenseData.find(e => e._id === income._id) || { expense: 0 };
+    const allMonths = Array.from(
+      new Set([
+        ...monthlyIncome.map(m => m._id),
+        ...monthlyExpense.map(m => m._id)
+      ])
+    ).filter(Boolean).sort((a, b) => a - b);
+
+    const monthlyStats = allMonths.map(month => {
+      const inc = monthlyIncome.find(m => m._id === month)?.income || 0;
+      const exp = monthlyExpense.find(m => m._id === month)?.expense || 0;
       return {
-        month: income._id,
-        income: income.income,
-        expense: expense.expense
+        month,
+        income: inc,
+        expense: exp
       };
     });
 

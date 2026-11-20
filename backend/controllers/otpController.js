@@ -10,13 +10,15 @@ function generateOTP() {
 
 async function sendOTP(email, otp) {
   const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
+  const rawPass = process.env.EMAIL_PASS;
 
-  if (!emailUser || !emailPass) {
-    console.log('\n⚠️ [OTP System] EMAIL_USER or EMAIL_PASS not configured in backend/.env.');
-    console.log(`🔑 [Dev Fallback] Email: ${email} | OTP: ${otp}\n`);
+  if (!emailUser || !rawPass) {
+    console.error('⚠️ EMAIL_USER or EMAIL_PASS not configured in environment.');
     return { success: false, reason: 'EMAIL_CREDENTIALS_MISSING' };
   }
+
+  // Remove all whitespace in App Password (e.g. "abcd efgh ijkl mnop" -> "abcdefghijklmnop")
+  const emailPass = rawPass.replace(/\s+/g, '');
 
   const mailOptions = {
     from: `"FinTrack" <${emailUser}>`,
@@ -47,10 +49,7 @@ async function sendOTP(email, otp) {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
+      service: 'gmail',
       auth: {
         user: emailUser,
         pass: emailPass
@@ -58,11 +57,10 @@ async function sendOTP(email, otp) {
     });
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`\n✅ [OTP Email Sent] Successfully delivered to ${email}. Response: ${info.response}\n`);
+    console.log(`✅ [OTP Email Sent] Delivered to ${email}. Response: ${info.response}`);
     return { success: true, info };
   } catch (error) {
-    console.error(`\n❌ [OTP Email Failed] Could not deliver email to ${email}:`, error.message);
-    console.log(`🔑 [Dev Fallback] Email: ${email} | OTP: ${otp}\n`);
+    console.error(`❌ [OTP Email Failed] Error delivering to ${email}:`, error.message);
     return { success: false, reason: error.message };
   }
 }
@@ -90,27 +88,18 @@ exports.reqOTP = async (req, res) => {
       { otp, otpExpires: new Date(Date.now() + OTP_EXPIRY_MS) }
     );
 
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`🔑 [OTP REQUESTED] User: ${email}`);
-    console.log(`🔑 [OTP CODE]      ${otp}`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
     const emailResult = await sendOTP(email, otp);
 
     if (emailResult.success) {
-      // Sent to real email inbox: do NOT send OTP in response body
       return res.json({
         success: true,
-        message: 'OTP has been sent to your email address.',
-        emailSent: true
+        message: 'OTP has been sent to your email address.'
       });
     } else {
-      // Email failed or not configured: provide dev OTP so user is not stuck
-      return res.json({
-        success: true,
-        message: 'Email delivery unavailable (configure EMAIL_USER & EMAIL_PASS).',
-        emailSent: false,
-        otp
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send OTP to your email address. Please verify your email configuration.',
+        error: emailResult.reason
       });
     }
   } catch (error) {

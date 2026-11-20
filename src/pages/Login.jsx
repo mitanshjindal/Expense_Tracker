@@ -10,8 +10,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [showOtpInput, setShowOtpInput] = useState(false);
-  const [devOtp, setDevOtp] = useState(null);
-  const [emailSent, setEmailSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -46,26 +44,10 @@ const Login = () => {
     try {
       const otpRes = await api.post('/auth/reqOTP', { email });
       setShowOtpInput(true);
-      const returnedOtp = otpRes.data.otp;
-      const isEmailSent = Boolean(otpRes.data.emailSent);
-
-      setEmailSent(isEmailSent);
-
-      if (isEmailSent) {
-        // Real email sent successfully!
-        setDevOtp(null);
-        setOtp('');
-        toast.success('OTP sent to your email inbox!');
-      } else {
-        // Email failed or credentials not configured
-        setDevOtp(returnedOtp || null);
-        toast.error('Email not configured. See note below for dev OTP.');
-        if (returnedOtp) {
-          setOtp(returnedOtp);
-        }
-      }
+      setOtp('');
+      toast.success(otpRes.data?.message || 'OTP sent to your email inbox!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to request OTP');
+      toast.error(err.response?.data?.message || 'Failed to send OTP to your email');
     }
   };
 
@@ -147,28 +129,6 @@ const Login = () => {
                 <p className="text-sm text-gray-300">
                   Enter the 4-digit code sent to <span className="font-semibold text-blue-400">{email}</span>
                 </p>
-
-                {/* Show fallback only if email was not sent */}
-                {devOtp && !emailSent && (
-                  <div className="p-3 bg-amber-900/30 border border-amber-500/40 rounded-md">
-                    <div className="flex items-center justify-between text-xs text-amber-300 mb-1">
-                      <span className="font-semibold">⚠️ Email not sent (Dev Fallback):</span>
-                      <button
-                        type="button"
-                        onClick={() => setOtp(devOtp)}
-                        className="text-amber-400 hover:text-amber-200 underline text-xs font-semibold"
-                      >
-                        Auto-fill
-                      </button>
-                    </div>
-                    <div className="text-2xl font-mono font-bold tracking-widest text-white text-center py-1">
-                      {devOtp}
-                    </div>
-                    <p className="text-[11px] text-gray-400 mt-1 text-center">
-                      To receive OTP in your real mail inbox, set <span className="text-amber-300 font-mono">EMAIL_USER</span> and <span className="text-amber-300 font-mono">EMAIL_PASS</span> in <span className="text-amber-300 font-mono">backend/.env</span>.
-                    </p>
-                  </div>
-                )}
 
                 <div>
                   <label htmlFor="otp" className="block text-sm font-medium text-gray-300">Enter OTP</label>

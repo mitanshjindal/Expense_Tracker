@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const randomstring = require('randomstring');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
@@ -17,7 +18,7 @@ async function sendOTP(email, otp) {
     return { success: false, reason: 'EMAIL_CREDENTIALS_MISSING' };
   }
 
-  // Remove all whitespace in App Password (e.g. "abcd efgh ijkl mnop" -> "abcdefghijklmnop")
+  // Remove all whitespace in App Password (e.g. "dgue xbgg zdeg rhty" -> "dguexbggzdegrhty")
   const emailPass = rawPass.replace(/\s+/g, '');
 
   const mailOptions = {
@@ -78,10 +79,6 @@ exports.reqOTP = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    if (user.isAdmin) {
-      return res.status(400).json({ success: false, message: 'Admin users do not require OTP' });
-    }
-
     const otp = generateOTP();
     await User.updateOne(
       { _id: user._id },
@@ -98,7 +95,7 @@ exports.reqOTP = async (req, res) => {
     } else {
       return res.status(500).json({
         success: false,
-        message: 'Failed to send OTP to your email address. Please verify your email configuration.',
+        message: 'Failed to send OTP to your email address. Please check your email configuration.',
         error: emailResult.reason
       });
     }
@@ -130,7 +127,22 @@ exports.verifyOTP = async (req, res) => {
 
     if (user.otp === String(otp).trim()) {
       await User.updateOne({ _id: user._id }, { $unset: { otp: 1, otpExpires: 1 } });
-      return res.json({ success: true, message: 'OTP verified' });
+
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'fallback_secret', {
+        expiresIn: '30d',
+      });
+
+      return res.json({
+        success: true,
+        message: 'OTP verified successfully',
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          isAdmin: user.isAdmin,
+        }
+      });
     } else {
       return res.status(400).json({ success: false, message: 'Invalid OTP. Please check your email and try again.' });
     }

@@ -17,38 +17,32 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      // Step 1: Verify email & password credentials
       const response = await api.post('/auth/login', { email, password });
       if (response.data.success) {
-        const loginResponse = await api.post('/auth/completeLogin', { email });
-        localStorage.setItem('token', loginResponse.data.token);
-        localStorage.setItem('username', loginResponse.data.user.username);
-        localStorage.setItem('email', loginResponse.data.user.email || email);
-        localStorage.setItem('isAdmin', loginResponse.data.user.isAdmin);
-        toast.success(loginResponse.data.user.isAdmin ? 'Admin logged in successfully!' : 'Logged in successfully!');
-        navigate(loginResponse.data.user.isAdmin ? '/admin' : '/');
+        // Step 2: Send OTP to user's email
+        const otpRes = await api.post('/auth/reqOTP', { email });
+        setShowOtpInput(true);
+        setOtp('');
+        toast.success(otpRes.data?.message || 'Verification code sent to your email!');
       } else {
         toast.error(response.data.message || 'Login failed');
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      toast.error(error.response?.data?.message || 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const requestOtp = async () => {
-    if (!email) {
-      toast.error('Please enter your email address first');
-      return;
-    }
+  const handleResendOtp = async () => {
     setIsLoading(true);
     try {
       const otpRes = await api.post('/auth/reqOTP', { email });
-      setShowOtpInput(true);
       setOtp('');
-      toast.success(otpRes.data?.message || 'OTP sent to your email inbox!');
+      toast.success(otpRes.data?.message || 'New OTP sent to your email!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to send OTP to your email');
+      toast.error(err.response?.data?.message || 'Failed to resend OTP');
     } finally {
       setIsLoading(false);
     }
@@ -58,17 +52,17 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      // Step 3: Verify the code from user's email
       const verifyResponse = await api.post('/auth/verifyOTP', { email, otp });
-      if (verifyResponse.data.message === 'OTP verified' || verifyResponse.data.success) {
-        const loginResponse = await api.post('/auth/completeLogin', { email });
-        localStorage.setItem('token', loginResponse.data.token);
-        localStorage.setItem('username', loginResponse.data.user.username);
-        localStorage.setItem('email', loginResponse.data.user.email || email);
-        localStorage.setItem('isAdmin', loginResponse.data.user.isAdmin);
+      if (verifyResponse.data.success) {
+        localStorage.setItem('token', verifyResponse.data.token);
+        localStorage.setItem('username', verifyResponse.data.user.username);
+        localStorage.setItem('email', verifyResponse.data.user.email || email);
+        localStorage.setItem('isAdmin', verifyResponse.data.user.isAdmin);
         toast.success('Logged in successfully!');
-        navigate(loginResponse.data.user.isAdmin ? '/admin' : '/');
+        navigate(verifyResponse.data.user.isAdmin ? '/admin' : '/');
       } else {
-        toast.error('Invalid OTP');
+        toast.error(verifyResponse.data.message || 'Invalid OTP');
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'OTP verification failed');
@@ -115,7 +109,7 @@ const Login = () => {
                     className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-blue-500 focus:bg-gray-600 focus:ring-0 text-white px-3 py-2"
                   />
                 </div>
-                <div className="space-y-3">
+                <div>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -123,23 +117,14 @@ const Login = () => {
                     type="submit"
                     className="w-full py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
                   >
-                    {isLoading ? 'Verifying...' : 'Login'}
+                    {isLoading ? 'Verifying & Sending OTP...' : 'Login'}
                   </motion.button>
-
-                  <button
-                    type="button"
-                    onClick={requestOtp}
-                    disabled={isLoading}
-                    className="w-full text-center text-xs text-blue-400 hover:text-blue-300 underline block"
-                  >
-                    Or verify & log in via Email OTP
-                  </button>
                 </div>
               </form>
             ) : (
               <form onSubmit={handleOtpSubmit} className="space-y-6">
                 <p className="text-sm text-gray-300">
-                  Enter the 4-digit code sent to <span className="font-semibold text-blue-400">{email}</span>
+                  Enter the 4-digit code sent to your email: <span className="font-semibold text-blue-400">{email}</span>
                 </p>
 
                 <div>
@@ -152,6 +137,7 @@ const Login = () => {
                     placeholder="Enter 4-digit OTP"
                     onChange={(e) => setOtp(e.target.value)}
                     required
+                    autoFocus
                     className="mt-1 block w-full text-center tracking-widest text-lg font-mono rounded-md bg-gray-700 border-transparent focus:border-blue-500 focus:bg-gray-600 focus:ring-0 text-white px-3 py-2"
                   />
                 </div>
@@ -164,13 +150,14 @@ const Login = () => {
                     type="submit"
                     className="w-full py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
                   >
-                    {isLoading ? 'Verifying OTP...' : 'Verify OTP'}
+                    {isLoading ? 'Verifying OTP...' : 'Verify OTP & Login'}
                   </motion.button>
 
                   <div className="flex items-center justify-between text-xs text-gray-400 pt-2">
                     <button
                       type="button"
-                      onClick={requestOtp}
+                      onClick={handleResendOtp}
+                      disabled={isLoading}
                       className="text-blue-400 hover:text-blue-300 underline"
                     >
                       Resend OTP
